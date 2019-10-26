@@ -1,7 +1,7 @@
 open Lwt
 open LTerm_widget
 
-let gui () =
+let gui gameState () =
   let waiter, wakener = wait () in
   let vbox = new vbox in
   let button = new button

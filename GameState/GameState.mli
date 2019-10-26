@@ -1,11 +1,9 @@
 type t
 
-val applyAction: Action.t -> t -> t
+(* val applyAction: Action.t -> t -> t *)
 
-val display: t -> unit
+val create: unit -> t
 
-val startGame: unit -> t
+(* val isOver: t -> bool *)
 
-val isOver: t -> bool 
-
-val endGame: unit -> unit
+(* val save: t -> t *)
