@@ -1,7 +1,9 @@
 type t = {
-  is_over: bool
+  is_over: bool;
+  creature: Creature.t
 }
 
 let create () = {
-  is_over = false
+  is_over = false;
+  creature = Creature.create ()
 }

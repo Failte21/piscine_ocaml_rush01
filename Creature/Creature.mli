@@ -1,5 +1,7 @@
 type t
 
-val applyAction: Action.t -> t -> t
+val create: unit -> t
 
-val isDead: t -> bool
+(* val applyAction: Action.t -> t -> t
+
+val isDead: t -> bool *)
