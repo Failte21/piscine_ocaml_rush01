@@ -1,0 +1,14 @@
+S src/
+S src/Action
+S src/GameState
+S src/Creature
+S src/Gui
+
+B src/
+B src/Action
+B src/GameState
+B src/Creature
+B src/Gui
+
+PKG lwt lwt.unix
+PKG lambda-term
