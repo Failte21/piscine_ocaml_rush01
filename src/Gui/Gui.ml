@@ -1,6 +1,14 @@
 open Lwt
 open LTerm_widget
 
+let (--) i j =
+  let rec aux n acc =
+    if n < i then acc else aux (n-1) (n :: acc) in
+  aux j []
+
+let get_stat_string n =
+  List.fold_left (fun acc _ -> acc ^ "■") "" (0--(n / 5))
+
 let gui gameState () =
   let waiter, wakener = wait () in
   let vbox = new vbox in
@@ -16,7 +24,7 @@ let gui gameState () =
   let stat_box = new hbox in
   let rec create_stats i =
     if i <= 0 then () else
-    let label = new label "Health\n|||||||||||||||||||||||||" in
+    let label = new label ("Health\n" ^ (get_stat_string 100)) in
     stat_box#add label;
     create_stats (i - 1) in
   create_stats 4;
