@@ -1,36 +1,30 @@
-let green = "\x1b[32m"
-let reset = "\x1b[0m"
+open Lwt
+open LTerm_widget
 
-let pikachu = "`;-.          ___,
-`.`\\_...._/`.-\"`
-  \\        /      ,
-  /()   () \\    .' `-._
- |)  .    ()\\  /   _.'
- \\  -'-     ,; '. <
-  ;.__     ,;|   > \
- / ,    / ,  |.-'.-'
-(_/    (_/ ,;|.<`
-  \\    ,     ;-`
-   >   \\    /
-  (_,-'`> .'
-         (_,'"
+let gui () =
+  let waiter, wakener = wait () in
+  let vbox = new vbox in
+  let button = new button
+    ~brackets:("[ ", " ]")
+    "exit退出"
+  in
+  let label = new label "_" in
+  button#on_click (wakeup wakener);
+  vbox#add button;
+  vbox#add label;
+  let frame = new frame in
+  frame#set vbox;
+  frame#set_label ~alignment:LTerm_geom.H_align_center "Button test按钮测试";
+  Lazy.force LTerm.stdout >>= fun term ->
+  LTerm.enable_mouse term >>= fun () ->
+  Lwt.finalize 
+    (fun () -> run term frame waiter)
+    (fun () -> LTerm.disable_mouse term)
 
-let rec gameLoop window =
-  let _ = Curses.waddstr window pikachu in
-  let _ = Curses.refresh () in
-  Curses.erase ();
-  gameLoop window
-(* let rec gameLoop gameState =
-  if GameState.isOver gameState then GameState.endGame () else
-  GameState.display gameState;
-  let action = Action.pickAction "FEED" in
-  let new_gameState = GameState.applyAction action;
-  gameLoop new_gameState *)
+let main () =
+  (* let gameState = GameState.startGame () in *)
+  Lwt_main.run (gui ())
 
-(* let main () = *)
-
-let () = 
-  let window = Curses.initscr () in
-  gameLoop window
+let () = main ()
   (* let gameState = GameState.startGame () in *)
   (* game_loop gameState *)
