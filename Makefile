@@ -7,5 +7,6 @@ SOURCES = \
 	GameState/GameState.ml \
 	main.ml
 PACKS = lambda-term
+THREADS = true
 OCAMLMAKEFILE = ~/.opam/default/lib/ocaml-makefile/OCamlMakefile
 include $(OCAMLMAKEFILE)
