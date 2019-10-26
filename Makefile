@@ -1,4 +1,4 @@
-RESULT = main
+RESULT = rush01
 SOURCES = \
 	Gui/Gui.ml \
 	Creature/Creature.mli \

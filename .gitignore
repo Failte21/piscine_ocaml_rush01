@@ -1,0 +1,15 @@
+# Compilation files
+*.cmi
+*.cmo
+*.cmx
+*.o
+*.byt
+*.opt
+.depend
+
+# OcamlMakefile temp files
+._bcdi
+._d
+
+# Vim swap files
+*.swp
