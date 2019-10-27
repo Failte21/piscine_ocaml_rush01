@@ -32,16 +32,16 @@ let display wakener (creature: creature ref) =
   create_stats ();
 
   let buttons_box = new LTerm_widget.hbox in
-  let rec display_buttons i =
-    if i <= 0 then () else
-    let button = new LTerm_widget.button ("button" ^ string_of_int i) in
+
+  List.iter (fun action -> (
+    let label = Action.toString action in
+    let button = new LTerm_widget.button (label) in
     button#on_click (fun () -> (
       creature := { !creature with hygiene = !creature.hygiene - 10 };
       recreate_stats ()
     ));
     buttons_box#add button;
-    display_buttons (i - 1) in
-  display_buttons 4;
+  )) Action.all;
   vbox#add stat_box;
   vbox#add buttons_box;
 
