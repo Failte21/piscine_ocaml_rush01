@@ -10,6 +10,8 @@ SOURCES = \
 	src/GameState/GameState.ml \
 	src/Backup/Backup.mli \
 	src/Backup/Backup.ml \
+	src/HighScores/HighScores.ml \
+	src/HighScores/HighScores.mli \
 	src/Gui/Gui.ml \
 	src/main.ml
 PACKS = lambda-term
