@@ -8,7 +8,9 @@ let (--) i j =
 let get_stat_string n =
   List.fold_left (fun acc _ -> acc ^ "■") "" (0--(n / 5))
 
-let display wakener =
+type creature = { hygiene: int }
+
+let display wakener (creature: creature ref) =
   let vbox = new LTerm_widget.vbox in
   let button = new LTerm_widget.button
     ~brackets:("[ ", " ]")
@@ -20,18 +22,23 @@ let display wakener =
   vbox#add label;
 
   let stat_box = new LTerm_widget.hbox in
-  let rec create_stats i =
-    if i <= 0 then () else
-    let label = new LTerm_widget.label ("Health\n" ^ (get_stat_string 100)) in
-    stat_box#add label;
-    create_stats (i - 1) in
-  create_stats 4;
+
+  let labels = List.map (fun _ -> new LTerm_widget.label ("Health\n" ^ (get_stat_string (!creature.hygiene)))) (0--4) in
+
+  let create_stats () = List.iter (fun label -> stat_box#add label) labels in
+
+  let recreate_stats () =
+    List.iter (fun label -> label#set_text ("Health\n" ^ (get_stat_string !creature.hygiene))) labels in
+  create_stats ();
 
   let buttons_box = new LTerm_widget.hbox in
   let rec display_buttons i =
     if i <= 0 then () else
     let button = new LTerm_widget.button ("button" ^ string_of_int i) in
-    button#on_click (fun () -> print_endline "hello");
+    button#on_click (fun () -> (
+      creature := { !creature with hygiene = !creature.hygiene - 10 };
+      recreate_stats ()
+    ));
     buttons_box#add button;
     display_buttons (i - 1) in
   display_buttons 4;
@@ -44,10 +51,11 @@ let display wakener =
   frame
 
 let gui gameState () =
-  let waiter, wakener = Lwt.wait () in
-  let frame = display wakener in
   Lazy.force LTerm.stdout >>= fun term ->
-  LTerm.enable_mouse term >>= fun () ->
-  Lwt.finalize 
-    (fun () -> LTerm_widget.run term frame waiter)
-    (fun () -> LTerm.disable_mouse term)
+    let waiter, wakener = Lwt.wait () in
+    let creature = ref { hygiene = 100 } in
+    let frame = display wakener creature in
+    LTerm.enable_mouse term >>= fun () ->
+      Lwt.finalize 
+        (fun () -> LTerm_widget.run term frame waiter)
+        (fun () -> LTerm.disable_mouse term)
