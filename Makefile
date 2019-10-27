@@ -1,5 +1,7 @@
 RESULT = rush01
 SOURCES = \
+	src/Action/Action.mli \
+	src/Action/Action.ml \
 	src/Gui/Gui.ml \
 	src/Creature/Creature.mli \
 	src/Creature/Creature.ml \
