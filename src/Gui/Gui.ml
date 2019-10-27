@@ -33,22 +33,17 @@ let udpate_game quit_fn update_stats_fn creature =
 let display wakener (gameState: GameState.t ref) =
   let creature = ref !gameState.creature in
   let vbox = new LTerm_widget.vbox in
+
   (* Add button Save and exit *)
-  let button_exit = new LTerm_widget.button
-    ~brackets:("[ ", " ]")
-    "exit"
-  in
-  (* let save_button = new LTerm_widget.button
-    ~brackets:("[ ", " ]")
-    "save"
-  in
-  save_button#on_click (Backup.save gameState); *)
-
-  (* Add Stats *)
-
+  let save_exit_box = new LTerm_widget.hbox in
+  let exit_button = new LTerm_widget.button ~brackets:("[ ", " ]") "exit" in
+  let save_button = new LTerm_widget.button ~brackets:("[ ", " ]") "save" in
   let quit = Lwt.wakeup wakener in
-  button_exit#on_click quit;
-  vbox#add button_exit;
+  exit_button#on_click quit;
+  save_exit_box#add exit_button;
+  save_button#on_click (fun () -> ignore(Backup.save !gameState "save.itama"));
+  save_exit_box#add save_button;
+  vbox#add save_exit_box;
 
   (* Add Stats *)
   let labels = List.map (fun s -> new LTerm_widget.label ((Creature.stateToString s) ^ "\n" ^ (get_stat_string (Creature.getState s !creature)))) Creature.allStates in

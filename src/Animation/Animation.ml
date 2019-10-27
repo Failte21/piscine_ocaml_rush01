@@ -27,9 +27,9 @@ let ascii_hands_up: image =
          \\             /
          / .':.   .':. \\
  .--.--, | |  |   |  | |
- /__:  /  | '::' . '::' |,;
-     / /   |`.   ._.   . /  /
-  / /    |.'         /. /
+  /__:  /  | '::' . '::' |,;
+      / /   |`.   ._.   . /  /
+   / /    |.'         /. /
  /___-_-,|.\\  \\       .|
       // |''\\.;       '|
       `==|:=         =:|
@@ -53,9 +53,25 @@ let ascii_open_eyes: image =
            :-._____.-:
           `''       `''"
 
+let ascii_dead: image =
+"
+       \\:.             .:/
+        \\``._________.''/
+         \\             /
+         /  \\/     \\/ \\
+         |  /\\  .  /\\  |
+         |`.         .'|
+          |.'    0    '.|
+   __-_-,|.\\  \\   /  /.|
+  / / // |''\\.;   ;,/ '|
+  | | `==|:=         =:|
+  | |    `.          .'
+  /  \\     :-._____.-:
+ |____|   `''       `''"
+
+
 let create () = {
-  (* arts = [ascii_hands_up]; *)
-  arts = [ascii_base; ascii_hands_up; ascii_base; ascii_open_eyes; ascii_base];
+  arts = [ascii_base; ascii_hands_up; ascii_base; ascii_open_eyes; ascii_dead];
   current = ascii_base;
   index = 0;
 }

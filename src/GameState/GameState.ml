@@ -1,5 +1,5 @@
 type t = {
-  creature: Creature.t
+  creature: Creature.t;
 }
 
 let create () = {
