@@ -30,9 +30,10 @@ let udpate_game quit_fn update_stats_fn creature =
   if Creature.isDead creature then quit_fn ()
   else update_stats_fn creature
 
-let display wakener creature =
-  (* Add button Save and exit *)
+let display wakener (gameState: GameState.t ref) =
+  let creature = ref !gameState.creature in
   let vbox = new LTerm_widget.vbox in
+  (* Add button Save and exit *)
   let button_exit = new LTerm_widget.button
     ~brackets:("[ ", " ]")
     "exit"
@@ -95,11 +96,11 @@ let display wakener creature =
   frame#set_label ~alignment:LTerm_geom.H_align_center "Tamagotchu";
   frame
 
-let gui creature () =
+let gui gameState () =
   Lazy.force LTerm.stdout >>= fun term ->
     let waiter, wakener = Lwt.wait () in
-    let creature = ref creature in
-    let frame = display wakener creature in
+    let gameState = ref gameState in
+    let frame = display wakener gameState in
     LTerm.enable_mouse term >>= fun () ->
       Lwt.finalize
         (fun () -> LTerm_widget.run term frame waiter)
