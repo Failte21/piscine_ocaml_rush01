@@ -56,6 +56,45 @@ let gui gameState () =
     let creature = ref { hygiene = 100 } in
     let frame = display wakener creature in
     LTerm.enable_mouse term >>= fun () ->
-      Lwt.finalize 
+      Lwt.finalize
         (fun () -> LTerm_widget.run term frame waiter)
         (fun () -> LTerm.disable_mouse term)
+(* let get_time () =
+  let localtime = Unix.localtime (Unix.time ()) in
+  Printf.sprintf "%02u:%02u:%02u"
+    localtime.Unix.tm_hour
+    localtime.Unix.tm_min
+    localtime.Unix.tm_sec
+
+let gui gameState () =
+  let waiter, wakener = wait () in
+
+
+  (* let anim = Creature.get_animation (GameState.get_creature gameState) in *)
+
+  let vbox = new vbox in
+  let clock = new label (get_time ()) in
+  let button = new button ~brackets:("[ ", " ]") "exit" in
+  button#on_click (wakeup wakener);
+  vbox#add clock;
+  vbox#add button;
+
+
+  let animation = Animation.create () in
+  let next_image = Animation.next_state animation in
+  let creature = new label next_image in
+  vbox#add creature;
+  ignore (Lwt_engine.on_timer 1.0 true (fun _ -> creature#set_text next_image));
+
+  (* Update the time every second. *)
+  ignore (Lwt_engine.on_timer 1.0 true (fun _ -> clock#set_text (get_time ())));
+
+
+  let frame = new frame in
+  frame#set vbox;
+  (* frame#set_label ~alignment:LTerm_geom.H_align_center "Button test按钮测试"; *)
+  Lazy.force LTerm.stdout >>= fun term ->
+  LTerm.enable_mouse term >>= fun () ->
+  Lwt.finalize
+    (fun () -> run term frame waiter)
+    (fun () -> LTerm.disable_mouse term) *)
