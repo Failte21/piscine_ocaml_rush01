@@ -3,12 +3,14 @@ S src/Action
 S src/GameState
 S src/Creature
 S src/Gui
+S src/Backup
 
 B src/
 B src/Action
 B src/GameState
 B src/Creature
 B src/Gui
+B src/Backup
 
 PKG lwt lwt.unix
 PKG lambda-term

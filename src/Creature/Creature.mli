@@ -2,6 +2,9 @@ type t
 
 val create: unit -> t
 
-(* val applyAction: Action.t -> t -> t
+val serialize: t -> string
+val deserialize: string -> t option
 
-val isDead: t -> bool *)
+(* val applyAction: Action.t -> t -> t *)
+
+(* val isDead: t -> bool *)

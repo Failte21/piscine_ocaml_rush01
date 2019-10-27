@@ -7,6 +7,8 @@ SOURCES = \
 	src/Creature/Creature.ml \
 	src/GameState/GameState.mli \
 	src/GameState/GameState.ml \
+	src/Backup/Backup.mli \
+	src/Backup/Backup.ml \
 	src/main.ml
 PACKS = lambda-term
 THREADS = true

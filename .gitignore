@@ -16,3 +16,6 @@
 
 # program
 rush01
+
+# backup files
+*.itama
