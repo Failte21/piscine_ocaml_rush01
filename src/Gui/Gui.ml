@@ -37,7 +37,7 @@ let display wakener (creature: creature ref) =
     let label = Action.toString action in
     let button = new LTerm_widget.button (label) in
     button#on_click (fun () -> (
-      creature := { !creature with hygiene = !creature.hygiene - 10 };
+      creature := { hygiene = !creature.hygiene - 10 };
       recreate_stats ()
     ));
     buttons_box#add button;
