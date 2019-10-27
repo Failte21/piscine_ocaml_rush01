@@ -8,16 +8,20 @@ let create () = {
   time = 0.;
 }
 
-let serialize { creature } =
-  Creature.serialize creature
+let serialize { creature; time } =
+  Creature.serialize creature ^ " " ^ Float.to_string time
 
 let deserialize s =
-  match Creature.deserialize s with
-  | None -> None
-  | Some creature -> Some { creature = creature }
+  match String.split_on_char ' ' s with
+  | creature_s::time_s::[] ->
+    (match Creature.deserialize creature_s, Float.of_string_opt time_s with
+     | Some creature, Some time -> Some { creature = creature; time = time }
+     | _, _ -> None)
+  | _ -> None
 
-let applyAction action state = {
-  creature = Creature.applyAction action state.creature
+let applyAction action { creature; time } = {
+  creature = Creature.applyAction action creature;
+  time = time
 }
 
 let updateTime gameState time = {
