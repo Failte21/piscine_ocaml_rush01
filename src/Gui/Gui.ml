@@ -55,9 +55,19 @@ let display wakener (gameState: GameState.t ref) =
   List.iter (fun label -> stat_box#add label) labels;
   let update_stats = recreate_stats labels_states in
 
-  (* Add Timer *)
+  let animation = Animation.create () in
   let start_timer = Unix.time () -. (!gameState).time in
+  let creature_images = new LTerm_widget.label (Animation.next_state animation) in
+  let buttons_box = new LTerm_widget.hbox in
   let clock = new LTerm_widget.label (update_score start_timer gameState) in
+  let clear () =
+    vbox#remove clock;
+    vbox#remove creature_images;
+    vbox#remove buttons_box;
+    vbox#remove stat_box;
+    save_exit_box#remove save_button
+  in
+  let update_d = udpate_game quit update_stats clear in
   vbox#add clock;
   ignore (Lwt_engine.on_timer 1.0 true (fun _ ->
     clock#set_text (update_score start_timer gameState);
@@ -65,32 +75,13 @@ let display wakener (gameState: GameState.t ref) =
     update_d !gameState.creature;
   ));
 
-  (* Add Creature *)
-  let animation = Animation.create () in
-  let creature_images = new LTerm_widget.label (Animation.next_state animation) in
   vbox#add creature_images;
   ignore (Lwt_engine.on_timer 1.0 true
     (fun _ -> creature_images#set_text (Animation.next_state animation)));
-  let buttons_box = new LTerm_widget.hbox in
 
   let frame = new LTerm_widget.frame in
   frame#set vbox;
   frame#set_label ~alignment:LTerm_geom.H_align_center "Tamagotchu";
-
-  let clear () =
-    vbox#remove clock;
-    vbox#remove creature_images;
-    vbox#remove buttons_box;
-    vbox#remove stat_box in
-
-  let update_d = udpate_game quit update_stats clear in
-
-  ignore (Lwt_engine.on_timer 1.0 true (fun _ ->
-    clock#set_text (get_timer timer);
-    creature := Creature.applyAction Action.decay !creature;
-    update_d !creature
-  ));
-
   List.iter (fun action -> (
     let label = Action.toString action in
     let button = new LTerm_widget.button (label) in
