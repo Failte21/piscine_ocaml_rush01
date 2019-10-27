@@ -22,7 +22,7 @@ val create: unit -> t
 val serialize: t -> string
 val deserialize: string -> t option
 
-(* val isDead: t -> bool *)
+val isDead: t -> bool
 val applyAction: Action.t -> t -> t
 
 val getState: state -> t -> int
