@@ -12,9 +12,11 @@ let get_game_state () : GameState.t =
 let main () =
   let gameState = get_game_state () in
   Lwt_main.run (Gui.gui gameState ());
-  match Backup.save (GameState.create ()) backup_file with
-  | Error s ->
-    prerr_endline ("An error happened while saving backup file: "  ^ s)
-  | _ -> ()
+  try
+    Sys.remove backup_file
+  with e ->
+    prerr_endline
+      ("An error happened while removing the backup file: " ^
+       Printexc.to_string e)
 
 let () = main ()
