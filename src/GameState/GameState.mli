@@ -3,7 +3,7 @@ type t = {
   time: float;
 }
 
-val applyAction: Action.t -> t -> t
+val applyAction: Action.t -> t -> Animation.t ref -> t
 
 val create: unit -> t
 

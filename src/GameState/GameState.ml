@@ -19,7 +19,15 @@ let deserialize s =
      | _, _ -> None)
   | _ -> None
 
-let applyAction action { creature; time } = {
+let applyAction action { creature; time } animation =
+  (animation := match action with
+  | (Action.Eat, _, _, _, _) -> Animation.set_to_eat ()
+  | (Action.Kill, _, _, _, _) -> Animation.set_to_base ()
+  | (Action.Bath, _, _, _, _) -> Animation.set_to_base ()
+  | (Action.Thunder, _, _, _, _) -> Animation.set_to_base ()
+  | _ -> Animation.continue !animation
+  );
+{
   creature = Creature.applyAction action creature;
   time = time
 }

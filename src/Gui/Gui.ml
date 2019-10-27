@@ -71,7 +71,7 @@ let display wakener (gameState: GameState.t ref) =
   vbox#add clock;
   ignore (Lwt_engine.on_timer 1.0 true (fun _ ->
     clock#set_text (update_score start_timer gameState);
-    gameState := GameState.applyAction Action.decay !gameState;
+    gameState := GameState.applyAction Action.decay !gameState animation;
     update_d !gameState.creature;
   ));
 
@@ -86,7 +86,7 @@ let display wakener (gameState: GameState.t ref) =
     let label = Action.toString action in
     let button = new LTerm_widget.button (label) in
     button#on_click (fun () -> (
-      gameState := GameState.applyAction action !gameState;
+      gameState := GameState.applyAction action !gameState animation;
       update_d !gameState.creature;
     ));
     buttons_box#add button;

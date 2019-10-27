@@ -70,9 +70,59 @@ let ascii_dead: image =
  |____|   `''       `''"
 
 
+let ascii_eat_hands_up: image =
+"
+       \\:.             .:/
+        \\``._________.''/
+         \\             /
+ .--.--, / .':.   .':. \\
+/__:  /  | '::' . '::' |
+   / /   |`.    _    .'|
+  / /    |.'  .; U.; '.|
+ /___-_-,|. / /   \\ \\.|
+      // |'/ /.    \\ \\'|
+      `==|:=         =:|
+         `.          .'
+           :-._____.-:
+          `''       `''"
+
+let ascii_eat: image =
+"
+       \\:.             .:/
+        \\``._________.''/
+         \\             /
+ .--.--, / .':.   .':. \\
+/__:  /  | '::' . '::' |
+   / /   |`.    _    .'|
+  / /    |.'     U   '.|
+ /___-_-,|.\\  \\   /  /.|
+      // |''\\.;   ;,/ '|
+      `==|:=         =:|
+         `.          .'
+           :-._____.-:
+          `''       `''"
+
 let create () = {
   arts = [ascii_base; ascii_hands_up; ascii_base; ascii_open_eyes];
   current = ascii_base;
+  index = 0;
+}
+
+let continue animation = {
+  arts = animation.arts;
+  current = animation.current;
+  index = animation.index;
+}
+
+let set_to_base () = {
+  arts = [ascii_base; ascii_hands_up; ascii_base; ascii_open_eyes];
+  current = ascii_base;
+  index = 0;
+}
+
+let set_to_eat () = {
+  arts = [ascii_eat; ascii_eat_hands_up; ascii_base];
+  current = ascii_eat;
   index = 0;
 }
 
