@@ -37,8 +37,47 @@ let get_game_state () : GameState.t =
        (Printexc.to_string e));
     GameState.create ()
 
+let update_high_scores (gameState:GameState.t) =
+  let high_scores_file = "high.scores" in
+  let new_high_score hs =
+    print_endline ("Congratulations! You made a new high score: " ^
+      Int.to_string (Float.to_int gameState.time) ^ " !");
+    let rec get_name () =
+      print_string "Enter your name: ";
+      match read_line () with
+      | "" -> get_name ()
+      | name -> name
+      in
+    let hs = HighScores.add_score hs
+        { name = get_name ();
+          time = gameState.time } in
+    HighScores.print hs;
+    match HighScores.save hs high_scores_file with
+    | Ok () -> ()
+    | Error s ->
+      prerr_endline ("An error happened while writing High Scores: " ^ s)
+  in
+  let hs_op =
+    (if Sys.file_exists high_scores_file
+     then
+       (match HighScores.load high_scores_file with
+        | Ok hs -> Some hs
+        | Error s ->
+          prerr_endline ("An error happened while reading High Scores: " ^ s);
+          None)
+     else Some (HighScores.create ()))
+  in
+  Option.iter
+    (fun hs ->
+       if HighScores.is_high_score hs gameState.time
+       then new_high_score hs)
+    hs_op
+
 let main () =
-  let gameState = get_game_state () in
-  Lwt_main.run (Gui.gui gameState ())
+  try
+    let gameState = ref (get_game_state ()) in
+    Lwt_main.run (Gui.gui gameState ());
+    update_high_scores !gameState
+  with e -> prerr_endline ("An error happened: " ^ Printexc.to_string e)
 
 let () = main ()

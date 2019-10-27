@@ -99,7 +99,6 @@ let display wakener (gameState: GameState.t ref) =
 let gui gameState () =
   Lazy.force LTerm.stdout >>= fun term ->
     let waiter, wakener = Lwt.wait () in
-    let gameState = ref gameState in
     let frame = display wakener gameState in
     LTerm.enable_mouse term >>= fun () ->
       Lwt.finalize
