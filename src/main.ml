@@ -39,6 +39,6 @@ let get_game_state () : GameState.t =
 
 let main () =
   let gameState = GameState.create () in
-  Lwt_main.run (Gui.gui gameState.creature ())
+  Lwt_main.run (Gui.gui gameState ())
 
 let () = main ()

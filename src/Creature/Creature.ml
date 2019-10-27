@@ -70,3 +70,9 @@ let applyAction action creature =
       health = limit (creature.health + health_points);
       happiness = limit (creature.happiness + happiness_points)
     }
+
+let isDead creature =
+  creature.hygiene = 0 ||
+  creature.energy = 0 ||
+  creature.health = 0 ||
+  creature.happiness = 0
