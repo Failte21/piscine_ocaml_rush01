@@ -71,8 +71,14 @@ let ascii_dead: image =
 
 
 let create () = {
-  arts = [ascii_base; ascii_hands_up; ascii_base; ascii_open_eyes; ascii_dead];
+  arts = [ascii_base; ascii_hands_up; ascii_base; ascii_open_eyes];
   current = ascii_base;
+  index = 0;
+}
+
+let set_to_dead () = {
+  arts = [ascii_dead];
+  current = ascii_dead;
   index = 0;
 }
 

@@ -55,14 +55,14 @@ let display wakener (gameState: GameState.t ref) =
   List.iter (fun label -> stat_box#add label) labels;
   let update_stats = recreate_stats labels_states in
 
-  let animation = Animation.create () in
+  let animation = ref (Animation.create ()) in
   let start_timer = Unix.time () -. (!gameState).time in
-  let creature_images = new LTerm_widget.label (Animation.next_state animation) in
+  let creature_images = new LTerm_widget.label (Animation.next_state !animation) in
   let buttons_box = new LTerm_widget.hbox in
   let clock = new LTerm_widget.label (update_score start_timer gameState) in
   let clear () =
+    animation := Animation.set_to_dead ();
     vbox#remove clock;
-    vbox#remove creature_images;
     vbox#remove buttons_box;
     vbox#remove stat_box;
     save_exit_box#remove save_button
@@ -77,7 +77,7 @@ let display wakener (gameState: GameState.t ref) =
 
   vbox#add creature_images;
   ignore (Lwt_engine.on_timer 1.0 true
-    (fun _ -> creature_images#set_text (Animation.next_state animation)));
+    (fun _ -> creature_images#set_text (Animation.next_state !animation)));
 
   let frame = new LTerm_widget.frame in
   frame#set vbox;
