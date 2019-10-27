@@ -1,4 +1,8 @@
-type t
+type t = {
+  creature: Creature.t
+}
+
+val applyAction: Action.t -> t -> t
 
 val create: unit -> t
 

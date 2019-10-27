@@ -13,3 +13,7 @@ let deserialize s =
   match Creature.deserialize s with
   | None -> None
   | Some creature -> Some { creature = creature }
+
+let applyAction action state = {
+  creature = Creature.applyAction action state.creature
+}

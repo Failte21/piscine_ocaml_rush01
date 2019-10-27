@@ -36,3 +36,37 @@ let deserialize s =
            happiness = iha;
          })
   | _ -> None
+
+type state =
+  | HYGIENE
+  | ENERGY
+  | HEALTH
+  | HAPPINESS
+
+let allStates = [HYGIENE; ENERGY; HEALTH; HAPPINESS]
+
+let get_hygiene creature = creature.hygiene
+
+let stateToString = function
+  | HYGIENE -> "Hygiene"
+  | ENERGY -> "Energy"
+  | HEALTH -> "Health"
+  | HAPPINESS -> "Happiness"
+
+let getState state creature =
+  match state with
+    | HYGIENE -> creature.hygiene
+    | ENERGY -> creature.energy
+    | HEALTH -> creature.health
+    | HAPPINESS -> creature.happiness
+
+let limit value = if value < 0 then 0 else if value > 100 then 100 else value
+
+let applyAction action creature = 
+  match action with
+    | (_, health_points, energy_points, hygiene_points, happiness_points) -> {
+      hygiene = limit (creature.hygiene + hygiene_points);
+      energy = limit (creature.energy + energy_points);
+      health = limit (creature.health + health_points);
+      happiness = limit (creature.happiness + happiness_points)
+    }
