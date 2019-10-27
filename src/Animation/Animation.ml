@@ -66,28 +66,3 @@ let next_state crea =
   (try List.nth crea.arts crea.index
   with Failure _ | Invalid_argument _ -> crea.index <- 0;List.nth crea.arts 0);
   crea.current
-
-(* open Lwt
-
-let rec loop ui coord =
-  LTerm_ui.wait ui >>= function
-    | LTerm_event.Key{ code = Up; _ } ->
-        coord := { !coord with row = !coord.row - 1 };
-        LTerm_ui.draw ui;
-        loop ui coord
-    | LTerm_event.Key{ code = Down; _ } ->
-        coord := { !coord with row = !coord.row + 1 };
-        LTerm_ui.draw ui;
-        loop ui coord
-    | LTerm_event.Key{ code = Left; _ } ->
-        coord := { !coord with col = !coord.col - 1 };
-        LTerm_ui.draw ui;
-        loop ui coord
-    | LTerm_event.Key{ code = Right; _ } ->
-        coord := { !coord with col = !coord.col + 1 };
-        LTerm_ui.draw ui;
-        loop ui coord
-    | LTerm_event.Key{ code = Escape; _ } ->
-        return ()
-    | _ ->
-        loop ui coord *)

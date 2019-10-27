@@ -4,7 +4,7 @@ let (--) i j =
   let rec aux n acc =
     if n < i then acc else aux (n-1) (n :: acc) in
   aux j []
-  
+
 let get_stat_string n =
   let filled = n / 4 in
   let empty = 25 - filled in
@@ -23,16 +23,22 @@ let get_time start_timer timer =
   Printf.sprintf "%02us" time.Unix.tm_sec
 
 let display wakener creature =
+  (* Add button Save and exit *)
   let vbox = new LTerm_widget.vbox in
-  let button = new LTerm_widget.button
+  let button_exit = new LTerm_widget.button
     ~brackets:("[ ", " ]")
     "exit"
   in
-  button#on_click (Lwt.wakeup wakener);
-  vbox#add button;
+  button_exit#on_click (Lwt.wakeup wakener);
+  vbox#add button_exit;
+  (* let save_button = new LTerm_widget.button
+    ~brackets:("[ ", " ]")
+    "save"
+  in
+  save_button#on_click (Backup.save gameState); *)
 
   (* Add Stats *)
-  
+
   let labels = List.map (fun s -> new LTerm_widget.label ((Creature.stateToString s) ^ "\n" ^ (get_stat_string (Creature.getState s !creature)))) Creature.allStates in
 
   let labels_states = List.map2 (fun label state -> (label, state)) labels Creature.allStates in
