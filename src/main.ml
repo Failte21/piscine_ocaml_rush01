@@ -67,11 +67,14 @@ let rec get_name () =
 
 let main () =
   try
-    print_endline "---- High Scores ----";
-    (match HighScores.load "high.scores" with
-    | Ok hs -> HighScores.print hs
-    | Error e ->
-      prerr_endline ("An error happened while reading High Scores: " ^ e));
+    if Sys.file_exists "high.scores" then
+    begin
+      print_endline "---- High Scores ----";
+      (match HighScores.load "high.scores" with
+      | Ok hs -> HighScores.print hs
+      | Error e ->
+        prerr_endline ("An error happened while reading High Scores: " ^ e));
+    end;
     let name = get_name () in
     let gameState = ref (get_game_state ()) in
     Lwt_main.run (Gui.gui gameState ());
