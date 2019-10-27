@@ -6,8 +6,8 @@ let (--) i j =
   aux j []
   
 let get_stat_string n =
-  let filled = n / 5 in
-  let empty = 20 - filled in
+  let filled = n / 4 in
+  let empty = 25 - filled in
   List.fold_left (fun acc _ -> acc ^ "▓") "" (1--filled) ^
   List.fold_left (fun acc _ -> acc ^ "░") "" (1--empty)
 
@@ -31,12 +31,27 @@ let display wakener creature =
   button#on_click (Lwt.wakeup wakener);
   vbox#add button;
 
+  (* Add Stats *)
+  
+  let labels = List.map (fun s -> new LTerm_widget.label ((Creature.stateToString s) ^ "\n" ^ (get_stat_string (Creature.getState s !creature)))) Creature.allStates in
+
+  let labels_states = List.map2 (fun label state -> (label, state)) labels Creature.allStates in
+  let stat_box = new LTerm_widget.hbox in
+  let create_stats () = List.iter (fun label -> stat_box#add label) labels in
+  let recreate_stats () =
+    List.iter (fun (label, s) -> label#set_text ((Creature.stateToString s) ^ "\n" ^ (get_stat_string (Creature.getState s !creature)))) labels_states in
+  create_stats ();
+
   (* Add Timer *)
   let timer = ref (Unix.time ()) in
   let get_timer = get_time !timer  in
   let clock = new LTerm_widget.label (get_timer timer) in
   vbox#add clock;
-  ignore (Lwt_engine.on_timer 1.0 true (fun _ -> clock#set_text (get_timer timer)));
+  ignore (Lwt_engine.on_timer 1.0 true (fun _ ->
+    clock#set_text (get_timer timer);
+    creature := Creature.applyAction Action.decay !creature;
+    recreate_stats ()
+  ));
 
   (* Add Creature *)
   let animation = Animation.create () in
@@ -45,17 +60,6 @@ let display wakener creature =
 
   ignore (Lwt_engine.on_timer 1.0 true
     (fun _ -> creature_images#set_text (Animation.next_state animation)));
-  
-  let labels = List.map (fun s -> new LTerm_widget.label ((Creature.stateToString s) ^ "\n" ^ (get_stat_string (Creature.getState s !creature)))) Creature.allStates in
-
-  let labels_states = List.map2 (fun label state -> (label, state)) labels Creature.allStates in
-
-  (* Add Stats *)
-  let stat_box = new LTerm_widget.hbox in
-  let create_stats () = List.iter (fun label -> stat_box#add label) labels in
-  let recreate_stats () =
-    List.iter (fun (label, s) -> label#set_text ((Creature.stateToString s) ^ "\n" ^ (get_stat_string (Creature.getState s !creature)))) labels_states in
-  create_stats ();
 
   let buttons_box = new LTerm_widget.hbox in
 

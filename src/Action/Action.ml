@@ -8,6 +8,7 @@ type name =
   | Thunder
   | Bath
   | Kill
+  | Decay
 
 (* health energy hygiene happiness *)
 type t = ( name * int * int * int * int )
@@ -16,6 +17,7 @@ let eat = (Eat, 25, -10, -20, 5)
 let thunder = (Thunder, -20, 25, 0, -20)
 let bath = (Bath, -20, -10, 25, 5)
 let kill = (Kill, -20, -10, 0, 20)
+let decay = (Decay, -1, 0, 0, 0)
 
 let all = [eat; thunder; bath; kill]
 
@@ -31,3 +33,4 @@ let toString = function
   | (Thunder, _, _, _, _) -> "Thunder"
   | (Bath, _, _, _, _) -> "Bath"
   | (Kill, _, _, _, _) -> "Kill"
+  | (Decay, _, _, _, _) -> "Decay"
