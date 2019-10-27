@@ -11,17 +11,17 @@ let get_stat_string n =
   List.fold_left (fun acc _ -> acc ^ "▓") "" (1--filled) ^
   List.fold_left (fun acc _ -> acc ^ "░") "" (1--empty)
 
-let get_time start_timer timer =
-  timer := Unix.time ();
-
-  let time = Unix.localtime (!timer -. start_timer) in
+let update_score start_timer (game_state: GameState.t ref) =
+  let current_time = Unix.time () in
+  let score = (current_time -. start_timer) in
+  game_state := GameState.updateTime !game_state score;
+  let time = Unix.localtime score in
   let hour = time.Unix.tm_hour - 1 in
   let minutes = time.Unix.tm_min in
   "Your creature has survived " ^
   (if hour <> 0 then Printf.sprintf "%02uh" hour else "") ^
   (if minutes <> 0 then Printf.sprintf "%02um" minutes else "") ^
   Printf.sprintf "%02us" time.Unix.tm_sec
-
 
 let recreate_stats labels_states creature =
   List.iter (fun (label, s) -> label#set_text ((Creature.stateToString s) ^ "\n" ^ (get_stat_string (Creature.getState s creature)))) labels_states
@@ -31,7 +31,6 @@ let udpate_game quit_fn update_stats_fn clear creature =
   else update_stats_fn creature
 
 let display wakener (gameState: GameState.t ref) =
-  let creature = ref !gameState.creature in
   let vbox = new LTerm_widget.vbox in
 
   (* Add button Save and exit *)
@@ -46,17 +45,25 @@ let display wakener (gameState: GameState.t ref) =
   vbox#add save_exit_box;
 
   (* Add Stats *)
-  let labels = List.map (fun s -> new LTerm_widget.label ((Creature.stateToString s) ^ "\n" ^ (get_stat_string (Creature.getState s !creature)))) Creature.allStates in
+  let labels = List.map (fun s ->
+    new LTerm_widget.label ((Creature.stateToString s) ^ "\n" ^
+      (get_stat_string (Creature.getState s !gameState.creature))))
+      Creature.allStates
+  in
   let labels_states = List.map2 (fun label state -> (label, state)) labels Creature.allStates in
   let stat_box = new LTerm_widget.hbox in
   List.iter (fun label -> stat_box#add label) labels;
   let update_stats = recreate_stats labels_states in
 
   (* Add Timer *)
-  let timer = ref (Unix.time ()) in
-  let get_timer = get_time !timer  in
-  let clock = new LTerm_widget.label (get_timer timer) in
+  let start_timer = Unix.time () -. (!gameState).time in
+  let clock = new LTerm_widget.label (update_score start_timer gameState) in
   vbox#add clock;
+  ignore (Lwt_engine.on_timer 1.0 true (fun _ ->
+    clock#set_text (update_score start_timer gameState);
+    gameState := GameState.applyAction Action.decay !gameState;
+    update_d !gameState.creature;
+  ));
 
   (* Add Creature *)
   let animation = Animation.create () in
@@ -64,7 +71,6 @@ let display wakener (gameState: GameState.t ref) =
   vbox#add creature_images;
   ignore (Lwt_engine.on_timer 1.0 true
     (fun _ -> creature_images#set_text (Animation.next_state animation)));
-
   let buttons_box = new LTerm_widget.hbox in
 
   let frame = new LTerm_widget.frame in
@@ -76,7 +82,7 @@ let display wakener (gameState: GameState.t ref) =
     vbox#remove creature_images;
     vbox#remove buttons_box;
     vbox#remove stat_box in
-  
+
   let update_d = udpate_game quit update_stats clear in
 
   ignore (Lwt_engine.on_timer 1.0 true (fun _ ->
@@ -89,17 +95,17 @@ let display wakener (gameState: GameState.t ref) =
     let label = Action.toString action in
     let button = new LTerm_widget.button (label) in
     button#on_click (fun () -> (
-      creature := Creature.applyAction action !creature;
-      update_d !creature;
+      gameState := GameState.applyAction action !gameState;
+      update_d !gameState.creature;
     ));
     buttons_box#add button;
   )) Action.all;
   vbox#add stat_box;
   vbox#add buttons_box;
-  
+
   frame
 
-let gui gameState () = 
+let gui gameState () =
   Lazy.force LTerm.stdout >>= fun term ->
     let waiter, wakener = Lwt.wait () in
     let gameState = ref gameState in
