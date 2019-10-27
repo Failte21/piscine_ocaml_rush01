@@ -1,9 +1,11 @@
 type t = {
   creature: Creature.t;
+  time: float;
 }
 
 let create () = {
-  creature = Creature.create ()
+  creature = Creature.create ();
+  time = 0.;
 }
 
 let serialize { creature } =
@@ -16,4 +18,9 @@ let deserialize s =
 
 let applyAction action state = {
   creature = Creature.applyAction action state.creature
+}
+
+let updateTime gameState time = {
+  creature = gameState.creature;
+  time = time;
 }

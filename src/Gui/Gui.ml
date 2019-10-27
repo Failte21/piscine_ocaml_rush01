@@ -11,17 +11,17 @@ let get_stat_string n =
   List.fold_left (fun acc _ -> acc ^ "▓") "" (1--filled) ^
   List.fold_left (fun acc _ -> acc ^ "░") "" (1--empty)
 
-let get_time start_timer timer =
-  timer := Unix.time ();
-
-  let time = Unix.localtime (!timer -. start_timer) in
+let update_score start_timer (game_state: GameState.t ref) =
+  let current_time = Unix.time () in
+  let score = (current_time -. start_timer) in
+  game_state := GameState.updateTime !game_state score;
+  let time = Unix.localtime score in
   let hour = time.Unix.tm_hour - 1 in
   let minutes = time.Unix.tm_min in
   "Your creature has survived " ^
   (if hour <> 0 then Printf.sprintf "%02uh" hour else "") ^
   (if minutes <> 0 then Printf.sprintf "%02um" minutes else "") ^
   Printf.sprintf "%02us" time.Unix.tm_sec
-
 
 let recreate_stats labels_states creature =
   List.iter (fun (label, s) -> label#set_text ((Creature.stateToString s) ^ "\n" ^ (get_stat_string (Creature.getState s creature)))) labels_states
@@ -54,12 +54,11 @@ let display wakener (gameState: GameState.t ref) =
   let update_d = udpate_game quit update_stats in
 
   (* Add Timer *)
-  let timer = ref (Unix.time ()) in
-  let get_timer = get_time !timer  in
-  let clock = new LTerm_widget.label (get_timer timer) in
+  let start_timer = Unix.time () in
+  let clock = new LTerm_widget.label (update_score start_timer gameState) in
   vbox#add clock;
   ignore (Lwt_engine.on_timer 1.0 true (fun _ ->
-    clock#set_text (get_timer timer);
+    clock#set_text (update_score start_timer gameState);
     creature := Creature.applyAction Action.decay !creature;
     update_d !creature;
   ));
@@ -68,10 +67,8 @@ let display wakener (gameState: GameState.t ref) =
   let animation = Animation.create () in
   let creature_images = new LTerm_widget.label (Animation.next_state animation) in
   vbox#add creature_images;
-
   ignore (Lwt_engine.on_timer 1.0 true
     (fun _ -> creature_images#set_text (Animation.next_state animation)));
-
   let buttons_box = new LTerm_widget.hbox in
 
   List.iter (fun action -> (
