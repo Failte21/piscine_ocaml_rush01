@@ -1,5 +1,6 @@
 S src/
 S src/Action
+S src/Animation
 S src/GameState
 S src/Creature
 S src/Gui
@@ -7,6 +8,7 @@ S src/Backup
 
 B src/
 B src/Action
+B src/Animation
 B src/GameState
 B src/Creature
 B src/Gui
