@@ -17,3 +17,5 @@ let deserialize s =
 let applyAction action state = {
   creature = Creature.applyAction action state.creature
 }
+
+let isOver state = Creature.isDead state.creature

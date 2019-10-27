@@ -26,8 +26,8 @@ let get_time start_timer timer =
 let recreate_stats labels_states creature =
   List.iter (fun (label, s) -> label#set_text ((Creature.stateToString s) ^ "\n" ^ (get_stat_string (Creature.getState s creature)))) labels_states
 
-let udpate_game quit_fn update_stats_fn creature =
-  if Creature.isDead creature then quit_fn ()
+let udpate_game quit_fn update_stats_fn clear creature =
+  if Creature.isDead creature then clear ()
   else update_stats_fn creature
 
 let display wakener (gameState: GameState.t ref) =
@@ -51,28 +51,39 @@ let display wakener (gameState: GameState.t ref) =
   let stat_box = new LTerm_widget.hbox in
   List.iter (fun label -> stat_box#add label) labels;
   let update_stats = recreate_stats labels_states in
-  let update_d = udpate_game quit update_stats in
 
   (* Add Timer *)
   let timer = ref (Unix.time ()) in
   let get_timer = get_time !timer  in
   let clock = new LTerm_widget.label (get_timer timer) in
   vbox#add clock;
-  ignore (Lwt_engine.on_timer 1.0 true (fun _ ->
-    clock#set_text (get_timer timer);
-    creature := Creature.applyAction Action.decay !creature;
-    update_d !creature;
-  ));
 
   (* Add Creature *)
   let animation = Animation.create () in
   let creature_images = new LTerm_widget.label (Animation.next_state animation) in
   vbox#add creature_images;
-
   ignore (Lwt_engine.on_timer 1.0 true
     (fun _ -> creature_images#set_text (Animation.next_state animation)));
 
   let buttons_box = new LTerm_widget.hbox in
+
+  let frame = new LTerm_widget.frame in
+  frame#set vbox;
+  frame#set_label ~alignment:LTerm_geom.H_align_center "Tamagotchu";
+
+  let clear () =
+    vbox#remove clock;
+    vbox#remove creature_images;
+    vbox#remove buttons_box;
+    vbox#remove stat_box in
+  
+  let update_d = udpate_game quit update_stats clear in
+
+  ignore (Lwt_engine.on_timer 1.0 true (fun _ ->
+    clock#set_text (get_timer timer);
+    creature := Creature.applyAction Action.decay !creature;
+    update_d !creature
+  ));
 
   List.iter (fun action -> (
     let label = Action.toString action in
@@ -85,13 +96,10 @@ let display wakener (gameState: GameState.t ref) =
   )) Action.all;
   vbox#add stat_box;
   vbox#add buttons_box;
-
-  let frame = new LTerm_widget.frame in
-  frame#set vbox;
-  frame#set_label ~alignment:LTerm_geom.H_align_center "Tamagotchu";
+  
   frame
 
-let gui gameState () =
+let gui gameState () = 
   Lazy.force LTerm.stdout >>= fun term ->
     let waiter, wakener = Lwt.wait () in
     let gameState = ref gameState in
@@ -99,4 +107,7 @@ let gui gameState () =
     LTerm.enable_mouse term >>= fun () ->
       Lwt.finalize
         (fun () -> LTerm_widget.run term frame waiter)
-        (fun () -> LTerm.disable_mouse term)
+        (fun () -> (
+          print_endline (string_of_bool (GameState.isOver !gameState)) ;
+          LTerm.disable_mouse term
+        ))
