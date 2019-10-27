@@ -4,13 +4,13 @@ SOURCES = \
 	src/Action/Action.ml \
 	src/Animation/Animation.mli \
 	src/Animation/Animation.ml \
-	src/Gui/Gui.ml \
 	src/Creature/Creature.mli \
 	src/Creature/Creature.ml \
-	src/GameState/GameState.mli \
+`	src/GameState/GameState.mli \
 	src/GameState/GameState.ml \
 	src/Backup/Backup.mli \
 	src/Backup/Backup.ml \
+	src/Gui/Gui.ml \
 	src/main.ml
 PACKS = lambda-term
 THREADS = true

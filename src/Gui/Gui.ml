@@ -4,11 +4,12 @@ let (--) i j =
   let rec aux n acc =
     if n < i then acc else aux (n-1) (n :: acc) in
   aux j []
-
+  
 let get_stat_string n =
-  List.fold_left (fun acc _ -> acc ^ "■") "" (0--(n / 5))
-
-type creature = { hygiene: int }
+  let filled = n / 5 in
+  let empty = 20 - filled in
+  List.fold_left (fun acc _ -> acc ^ "▓") "" (1--filled) ^
+  List.fold_left (fun acc _ -> acc ^ "░") "" (1--empty)
 
 let get_time start_timer timer =
   timer := Unix.time ();
@@ -21,7 +22,7 @@ let get_time start_timer timer =
   (if minutes <> 0 then Printf.sprintf "%02um" minutes else "") ^
   Printf.sprintf "%02us" time.Unix.tm_sec
 
-let display wakener (creature: creature ref) =
+let display wakener creature =
   let vbox = new LTerm_widget.vbox in
   let button = new LTerm_widget.button
     ~brackets:("[ ", " ]")
@@ -41,17 +42,19 @@ let display wakener (creature: creature ref) =
   let animation = Animation.create () in
   let creature_images = new LTerm_widget.label (Animation.next_state animation) in
   vbox#add creature_images;
+
   ignore (Lwt_engine.on_timer 1.0 true
     (fun _ -> creature_images#set_text (Animation.next_state animation)));
+  
+  let labels = List.map (fun s -> new LTerm_widget.label ((Creature.stateToString s) ^ "\n" ^ (get_stat_string (Creature.getState s !creature)))) Creature.allStates in
+
+  let labels_states = List.map2 (fun label state -> (label, state)) labels Creature.allStates in
 
   (* Add Stats *)
   let stat_box = new LTerm_widget.hbox in
-  let labels = List.map (fun _ ->
-    new LTerm_widget.label ("Health\n" ^ (get_stat_string (!creature.hygiene)))) (0--4)
-  in
   let create_stats () = List.iter (fun label -> stat_box#add label) labels in
   let recreate_stats () =
-    List.iter (fun label -> label#set_text ("Health\n" ^ (get_stat_string !creature.hygiene))) labels in
+    List.iter (fun (label, s) -> label#set_text ((Creature.stateToString s) ^ "\n" ^ (get_stat_string (Creature.getState s !creature)))) labels_states in
   create_stats ();
 
   let buttons_box = new LTerm_widget.hbox in
@@ -60,7 +63,7 @@ let display wakener (creature: creature ref) =
     let label = Action.toString action in
     let button = new LTerm_widget.button (label) in
     button#on_click (fun () -> (
-      creature := { hygiene = !creature.hygiene - 10 };
+      creature := Creature.applyAction action !creature;
       recreate_stats ()
     ));
     buttons_box#add button;
@@ -73,10 +76,10 @@ let display wakener (creature: creature ref) =
   frame#set_label ~alignment:LTerm_geom.H_align_center "Tamagotchu";
   frame
 
-let gui gameState () =
+let gui creature () =
   Lazy.force LTerm.stdout >>= fun term ->
     let waiter, wakener = Lwt.wait () in
-    let creature = ref { hygiene = 100 } in
+    let creature = ref creature in
     let frame = display wakener creature in
     LTerm.enable_mouse term >>= fun () ->
       Lwt.finalize

@@ -4,7 +4,7 @@ type name =
   | Bath
   | Kill
 
-type t
+type t = ( name * int * int * int * int )
 
 val toString: t -> string
 
