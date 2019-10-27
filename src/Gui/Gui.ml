@@ -31,7 +31,6 @@ let udpate_game quit_fn update_stats_fn creature =
   else update_stats_fn creature
 
 let display wakener (gameState: GameState.t ref) =
-  let creature = ref !gameState.creature in
   let vbox = new LTerm_widget.vbox in
 
   (* Add button Save and exit *)
@@ -46,7 +45,11 @@ let display wakener (gameState: GameState.t ref) =
   vbox#add save_exit_box;
 
   (* Add Stats *)
-  let labels = List.map (fun s -> new LTerm_widget.label ((Creature.stateToString s) ^ "\n" ^ (get_stat_string (Creature.getState s !creature)))) Creature.allStates in
+  let labels = List.map (fun s ->
+    new LTerm_widget.label ((Creature.stateToString s) ^ "\n" ^
+      (get_stat_string (Creature.getState s !gameState.creature))))
+      Creature.allStates
+  in
   let labels_states = List.map2 (fun label state -> (label, state)) labels Creature.allStates in
   let stat_box = new LTerm_widget.hbox in
   List.iter (fun label -> stat_box#add label) labels;
@@ -54,13 +57,13 @@ let display wakener (gameState: GameState.t ref) =
   let update_d = udpate_game quit update_stats in
 
   (* Add Timer *)
-  let start_timer = Unix.time () in
+  let start_timer = Unix.time () -. (!gameState).time in
   let clock = new LTerm_widget.label (update_score start_timer gameState) in
   vbox#add clock;
   ignore (Lwt_engine.on_timer 1.0 true (fun _ ->
     clock#set_text (update_score start_timer gameState);
-    creature := Creature.applyAction Action.decay !creature;
-    update_d !creature;
+    gameState := GameState.applyAction Action.decay !gameState;
+    update_d !gameState.creature;
   ));
 
   (* Add Creature *)
@@ -75,8 +78,8 @@ let display wakener (gameState: GameState.t ref) =
     let label = Action.toString action in
     let button = new LTerm_widget.button (label) in
     button#on_click (fun () -> (
-      creature := Creature.applyAction action !creature;
-      update_d !creature;
+      gameState := GameState.applyAction action !gameState;
+      update_d !gameState.creature;
     ));
     buttons_box#add button;
   )) Action.all;
