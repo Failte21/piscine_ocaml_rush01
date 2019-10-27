@@ -22,6 +22,14 @@ let get_time start_timer timer =
   (if minutes <> 0 then Printf.sprintf "%02um" minutes else "") ^
   Printf.sprintf "%02us" time.Unix.tm_sec
 
+
+let recreate_stats labels_states creature =
+  List.iter (fun (label, s) -> label#set_text ((Creature.stateToString s) ^ "\n" ^ (get_stat_string (Creature.getState s creature)))) labels_states
+
+let udpate_game quit_fn update_stats_fn creature =
+  if Creature.isDead creature then quit_fn ()
+  else update_stats_fn creature
+
 let display wakener creature =
   (* Add button Save and exit *)
   let vbox = new LTerm_widget.vbox in
@@ -29,8 +37,6 @@ let display wakener creature =
     ~brackets:("[ ", " ]")
     "exit"
   in
-  button_exit#on_click (Lwt.wakeup wakener);
-  vbox#add button_exit;
   (* let save_button = new LTerm_widget.button
     ~brackets:("[ ", " ]")
     "save"
@@ -39,14 +45,17 @@ let display wakener creature =
 
   (* Add Stats *)
 
-  let labels = List.map (fun s -> new LTerm_widget.label ((Creature.stateToString s) ^ "\n" ^ (get_stat_string (Creature.getState s !creature)))) Creature.allStates in
+  let quit = Lwt.wakeup wakener in
+  button_exit#on_click quit;
+  vbox#add button_exit;
 
+  (* Add Stats *)
+  let labels = List.map (fun s -> new LTerm_widget.label ((Creature.stateToString s) ^ "\n" ^ (get_stat_string (Creature.getState s !creature)))) Creature.allStates in
   let labels_states = List.map2 (fun label state -> (label, state)) labels Creature.allStates in
   let stat_box = new LTerm_widget.hbox in
-  let create_stats () = List.iter (fun label -> stat_box#add label) labels in
-  let recreate_stats () =
-    List.iter (fun (label, s) -> label#set_text ((Creature.stateToString s) ^ "\n" ^ (get_stat_string (Creature.getState s !creature)))) labels_states in
-  create_stats ();
+  List.iter (fun label -> stat_box#add label) labels;
+  let update_stats = recreate_stats labels_states in
+  let update_d = udpate_game quit update_stats in
 
   (* Add Timer *)
   let timer = ref (Unix.time ()) in
@@ -56,7 +65,7 @@ let display wakener creature =
   ignore (Lwt_engine.on_timer 1.0 true (fun _ ->
     clock#set_text (get_timer timer);
     creature := Creature.applyAction Action.decay !creature;
-    recreate_stats ()
+    update_d !creature;
   ));
 
   (* Add Creature *)
@@ -74,7 +83,7 @@ let display wakener creature =
     let button = new LTerm_widget.button (label) in
     button#on_click (fun () -> (
       creature := Creature.applyAction action !creature;
-      recreate_stats ()
+      update_d !creature;
     ));
     buttons_box#add button;
   )) Action.all;
